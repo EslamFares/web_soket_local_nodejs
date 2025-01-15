@@ -1,0 +1,60 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build files
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Coverage reports
+coverage/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Logs and profiling
+*.log
+*.out
+*.err
+
+# Debugging
+.nyc_output/
+*.tgz
+
+# Others
+package-lock.json
+yarn.lock
+.pnpm-debug.log
