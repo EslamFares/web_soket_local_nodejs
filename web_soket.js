@@ -1,27 +1,27 @@
 const WebSocket = require('ws');
+const faker = require('faker'); // Import faker
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({ port: 8080 });
 
-// List of messages to send every 7 seconds
-const messages = [
-    "Hello, this is message 1!",
-    "How's it going? This is message 2.",
-    "Did you know? This is message 3.",
-    "Here's a fun fact! This is message 4.",
-    "Thanks for staying connected! This is message 5."
-];
-
 // Store connected clients
 const clients = new Set();
-
-// Counter to track the current message
-let messageIndex = 0;
 
 // Function to get the current timestamp
 function getCurrentTimestamp() {
     const now = new Date();
-    return `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    return `${now.toLocaleTimeString()}`;
+}
+
+function getCurrentDatestamp() {
+    const now = new Date();
+    return `${now.toLocaleDateString()}`;
+}
+
+// Function to generate a random message using faker
+function generateRandomMessage() {
+    // return `${faker.name.findName()} says: "${faker.lorem.sentence()}"`;
+    return `${faker.lorem.sentence()}`;
 }
 
 wss.on('connection', (ws) => {
@@ -31,9 +31,19 @@ wss.on('connection', (ws) => {
     // Handle incoming messages from the client
     ws.on('message', (message) => {
         const timestamp = getCurrentTimestamp();
-        console.log(`Server received: ${message} at ${timestamp}`);
-        // Send back the message with timestamp
-        ws.send(`Server received: ${message} at ${timestamp}`);
+        const datestamp = getCurrentDatestamp();
+        console.log(`Server received: ${message} at Timestamp ${datestamp} ${timestamp}`);
+        const messageString = message instanceof Buffer ? message.toString() : message;
+
+        // Send back the message with timestamp (serialize as JSON)
+        const response = {
+            sender: "User",
+            type: "receive",
+            msg: messageString,
+            time: timestamp,
+            date: datestamp
+        };
+        ws.send(JSON.stringify(response));  // Convert to JSON string
     });
 
     // Handle client disconnection
@@ -43,21 +53,27 @@ wss.on('connection', (ws) => {
     });
 });
 
-// Send a different message to all connected clients every 7 seconds
+// Send a randomly generated message to all connected clients every 7 seconds
 setInterval(() => {
-    const message = messages[messageIndex];
+    const message = generateRandomMessage();  // Generate a random message using faker
     const timestamp = getCurrentTimestamp();
-    console.log(`Server Sending: ${message} at ${timestamp}`);  // Log the message being sent
+    const datestamp = getCurrentDatestamp();
 
-    // Send the message to all connected clients with timestamp
+    console.log(`Server Sending: ${message} at Timestamp ${datestamp} ${timestamp}`);  // Log the message being sent
+
+    // Send the message to all connected clients with timestamp (serialize as JSON)
     clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(`Server Sending:${message} at ${timestamp}`);
+            const response = {
+                sender: "Server",
+                type: "send",
+                msg: message,
+                time: timestamp,
+                date: datestamp
+            };
+            client.send(JSON.stringify(response));  // Convert to JSON string
         }
     });
-
-    // Update the message index, loop back to the start if necessary
-    messageIndex = (messageIndex + 1) % messages.length;
-}, 3000);
+}, 7000);
 
 console.log('WebSocket server is running on ws://localhost:8080');
