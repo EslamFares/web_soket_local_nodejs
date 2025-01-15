@@ -2,7 +2,10 @@ const WebSocket = require('ws');
 const faker = require('faker'); // Import faker
 
 // Create a WebSocket server
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({
+    host: '192.168.2.1',
+    port: 8080
+});
 
 // Store connected clients
 const clients = new Set();
@@ -43,7 +46,15 @@ wss.on('connection', (ws) => {
             time: timestamp,
             date: datestamp
         };
-        ws.send(JSON.stringify(response));  // Convert to JSON string
+        //send for client only
+        // ws.send(JSON.stringify(response));  // Convert to JSON string
+
+        // Broadcast the received message to all connected clients
+        clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(response)); // Send the message in JSON format
+            }
+        });
     });
 
     // Handle client disconnection
@@ -75,5 +86,5 @@ setInterval(() => {
         }
     });
 }, 7000);
-
+console.log(`post : ${wss.port} host : ${wss.host}`);
 console.log('WebSocket server is running on ws://localhost:8080');
